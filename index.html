@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Firestore Form</title>
+  <style>
+    body { font-family: Arial; padding: 20px; background: #f0f0f0; }
+    form { background: white; padding: 20px; border-radius: 10px; width: 300px; }
+    input, textarea { width: 100%; margin-bottom: 10px; padding: 8px; }
+    button { padding: 10px 15px; }
+    .entry { background: #fff; margin-top: 10px; padding: 10px; border-radius: 5px; }
+  </style>
+</head>
+<body>
+
+  <h2>Form Submission</h2>
+  <form id="dataForm">
+    <input type="text" id="name" placeholder="Name" required />
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="text" id="phone" placeholder="Phone" required />
+    <input type="text" id="address" placeholder="Address" />
+    <input type="text" id="city" placeholder="City" />
+    <textarea id="details" placeholder="Details"></textarea>
+    <button type="submit">Submit</button>
+  </form>
+
+  <div id="entries"></div>
+
+  <!-- Firebase SDK (compat versions for browser global usage) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+  <script>
+    // ✅ Step 1: Firebase Config from your Firebase Console
+    const firebaseConfig = {
+      apiKey: "AIzaSyDR5V0npjgER23v711L52cYclOKbaA80v4",
+      authDomain: "keys1000-4ce89.firebaseapp.com",
+      projectId: "keys1000-4ce89",
+      storageBucket: "keys1000-4ce89.firebasestorage.app",
+      messagingSenderId: "493432398338",
+      appId: "1:493432398338:web:7116f62b36a7ee8d967d1b"
+    };
+
+    // ✅ Step 2: Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // ✅ Step 3: Handle Form Submit
+    const form = document.getElementById('dataForm');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = {
+        name: form.name.value,
+        email: form.email.value,
+        phone: form.phone.value,
+        address: form.address.value,
+        city: form.city.value,
+        details: form.details.value,
+        createdAt: new Date()
+      };
+
+      try {
+        await db.collection('form1_submissions').add(data);
+        alert("Data saved successfully!");
+        form.reset();
+        loadEntries();
+      } catch (err) {
+        console.error("Error adding document: ", err);
+      }
+    });
+
+    // ✅ Step 4: Fetch Entries
+    async function loadEntries() {
+      const entriesDiv = document.getElementById('entries');
+      entriesDiv.innerHTML = '';
+      const snapshot = await db.collection('form1_submissions').orderBy('createdAt', 'desc').get();
+      snapshot.forEach(doc => {
+        const entry = doc.data();
+        entriesDiv.innerHTML += `
+          <div class="entry">
+            <strong>${entry.name}</strong><br/>
+            ${entry.email}, ${entry.phone}<br/>
+            ${entry.address}, ${entry.city}<br/>
+            ${entry.details}
+          </div>
+        `;
+      });
+    }
+
+    // ✅ Step 5: Load on Start
+    loadEntries();
+  </script>
+
+</body>
+</html>
