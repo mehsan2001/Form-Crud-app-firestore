@@ -20,29 +20,6 @@
       overflow-x: hidden;
     }
 
-    /* Animated background particles */
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-image: 
-        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
-        radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
-      animation: float 20s ease-in-out infinite;
-      pointer-events: none;
-      z-index: -1;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0px) rotate(0deg); }
-      33% { transform: translateY(-30px) rotate(120deg); }
-      66% { transform: translateY(30px) rotate(240deg); }
-    }
-
     .container {
       max-width: 1200px;
       margin: 0 auto;
@@ -109,7 +86,7 @@
       width: 100%;
       padding: 16px 20px;
       background: rgba(255, 255, 255, 0.03);
-      border: 2px solid transparent;
+      border: 2px solid rgba(255, 255, 255, 0.3);
       border-radius: 12px;
       color: #ffffff;
       font-size: 16px;
@@ -127,6 +104,7 @@
     .input-field:focus {
       outline: none;
       background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.6);
       transform: translateY(-2px);
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     }
@@ -136,42 +114,8 @@
       transform: translateY(-2px);
     }
 
-    /* Animated border effect */
-    .input-group::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      border-radius: 12px;
-      padding: 2px;
-      background: linear-gradient(45deg, 
-        #ff006e, 
-        #8338ec, 
-        #3a86ff, 
-        #06ffa5, 
-        #ffbe0b, 
-        #ff006e
-      );
-      background-size: 300% 300%;
-      animation: gradientShift 4s ease infinite;
-      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      mask-composite: exclude;
-      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      -webkit-mask-composite: xor;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    .input-group:focus-within::before {
-      opacity: 1;
-    }
-
-    @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+    .input-field:hover {
+      border-color: rgba(255, 255, 255, 0.5);
     }
 
     textarea.input-field {
