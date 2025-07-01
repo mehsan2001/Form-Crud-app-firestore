@@ -2,36 +2,407 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Firestore Form</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modern Firestore Form</title>
   <style>
-    body { font-family: Arial; padding: 20px; background: #f0f0f0; }
-    form { background: white; padding: 20px; border-radius: 10px; width: 300px; }
-    input, textarea { width: 100%; margin-bottom: 10px; padding: 8px; }
-    button { padding: 10px 15px; }
-    .entry { background: #fff; margin-top: 10px; padding: 10px; border-radius: 5px; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 50%, #0f0f0f 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: #ffffff;
+      overflow-x: hidden;
+    }
+
+    /* Animated background particles */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+      animation: float 20s ease-in-out infinite;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      33% { transform: translateY(-30px) rotate(120deg); }
+      66% { transform: translateY(30px) rotate(240deg); }
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      grid-column: 1 / -1;
+    }
+
+    .form-container {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .form-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+      animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 25px;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 16px 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 2px solid transparent;
+      border-radius: 12px;
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 400;
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 1;
+    }
+
+    .input-field::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+      transition: all 0.3s ease;
+    }
+
+    .input-field:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .input-field:focus::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+      transform: translateY(-2px);
+    }
+
+    /* Animated border effect */
+    .input-group::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 12px;
+      padding: 2px;
+      background: linear-gradient(45deg, 
+        #ff006e, 
+        #8338ec, 
+        #3a86ff, 
+        #06ffa5, 
+        #ffbe0b, 
+        #ff006e
+      );
+      background-size: 300% 300%;
+      animation: gradientShift 4s ease infinite;
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .input-group:focus-within::before {
+      opacity: 1;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    textarea.input-field {
+      min-height: 120px;
+      resize: vertical;
+      font-family: inherit;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .submit-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+    }
+
+    .submit-btn:hover::before {
+      left: 100%;
+    }
+
+    .submit-btn:active {
+      transform: translateY(-1px);
+    }
+
+    .entries-container {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 30px;
+      max-height: 600px;
+      overflow-y: auto;
+      box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .entries-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #ffffff;
+      text-align: center;
+    }
+
+    .entry {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .entry::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 2px;
+    }
+
+    .entry:hover {
+      transform: translateX(5px);
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .entry-name {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+
+    .entry-contact {
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+
+    .entry-address {
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+    }
+
+    .entry-details {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    /* Custom scrollbar */
+    .entries-container::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .entries-container::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+
+    .entries-container::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 4px;
+    }
+
+    .entries-container::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(135deg, #764ba2, #667eea);
+    }
+
+    /* Loading animation */
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #ffffff;
+      animation: spin 1s ease-in-out infinite;
+      margin-left: 10px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Success message */
+    .success-message {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #00b894, #00a085);
+      color: white;
+      padding: 15px 25px;
+      border-radius: 10px;
+      box-shadow: 0 5px 20px rgba(0, 184, 148, 0.3);
+      transform: translateX(400px);
+      transition: transform 0.3s ease;
+      z-index: 1000;
+    }
+
+    .success-message.show {
+      transform: translateX(0);
+    }
   </style>
 </head>
 <body>
+  <div class="container">
+    <h2>Modern Form Submission</h2>
+    
+    <div class="form-container">
+      <form id="dataForm">
+        <div class="input-group">
+          <input type="text" id="name" class="input-field" placeholder="Full Name" required />
+        </div>
+        
+        <div class="input-group">
+          <input type="email" id="email" class="input-field" placeholder="Email Address" required />
+        </div>
+        
+        <div class="input-group">
+          <input type="text" id="phone" class="input-field" placeholder="Phone Number" required />
+        </div>
+        
+        <div class="input-group">
+          <input type="text" id="address" class="input-field" placeholder="Street Address" />
+        </div>
+        
+        <div class="input-group">
+          <input type="text" id="city" class="input-field" placeholder="City" />
+        </div>
+        
+        <div class="input-group">
+          <textarea id="details" class="input-field" placeholder="Additional Details"></textarea>
+        </div>
+        
+        <button type="submit" class="submit-btn">
+          Submit Form
+          <span class="loading" id="loadingSpinner" style="display: none;"></span>
+        </button>
+      </form>
+    </div>
 
-  <h2>Form Submission</h2>
-  <form id="dataForm">
-    <input type="text" id="name" placeholder="Name" required />
-    <input type="email" id="email" placeholder="Email" required />
-    <input type="text" id="phone" placeholder="Phone" required />
-    <input type="text" id="address" placeholder="Address" />
-    <input type="text" id="city" placeholder="City" />
-    <textarea id="details" placeholder="Details"></textarea>
-    <button type="submit">Submit</button>
-  </form>
+    <div class="entries-container">
+      <h3 class="entries-title">Recent Submissions</h3>
+      <div id="entries"></div>
+    </div>
+  </div>
 
-  <div id="entries"></div>
+  <div class="success-message" id="successMessage">
+    ✓ Data saved successfully!
+  </div>
 
   <!-- Firebase SDK (compat versions for browser global usage) -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
   <script>
-    // ✅ Step 1: Firebase Config from your Firebase Console
+    // Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyDR5V0npjgER23v711L52cYclOKbaA80v4",
       authDomain: "keys1000-4ce89.firebaseapp.com",
@@ -41,14 +412,32 @@
       appId: "1:493432398338:web:7116f62b36a7ee8d967d1b"
     };
 
-    // ✅ Step 2: Initialize Firebase
+    // Initialize Firebase
     const app = firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // ✅ Step 3: Handle Form Submit
+    // Show success message
+    function showSuccessMessage() {
+      const message = document.getElementById('successMessage');
+      message.classList.add('show');
+      setTimeout(() => {
+        message.classList.remove('show');
+      }, 3000);
+    }
+
+    // Handle Form Submit
     const form = document.getElementById('dataForm');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const submitBtn = form.querySelector('.submit-btn');
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      
+      // Show loading state
+      loadingSpinner.style.display = 'inline-block';
+      submitBtn.disabled = true;
+      submitBtn.style.opacity = '0.7';
+
       const data = {
         name: form.name.value,
         email: form.email.value,
@@ -61,35 +450,65 @@
 
       try {
         await db.collection('form1_submissions').add(data);
-        alert("Data saved successfully!");
+        showSuccessMessage();
         form.reset();
         loadEntries();
       } catch (err) {
         console.error("Error adding document: ", err);
+        alert("Error saving data. Please try again.");
+      } finally {
+        // Hide loading state
+        loadingSpinner.style.display = 'none';
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
       }
     });
 
-    // ✅ Step 4: Fetch Entries
+    // Fetch and display entries
     async function loadEntries() {
       const entriesDiv = document.getElementById('entries');
-      entriesDiv.innerHTML = '';
-      const snapshot = await db.collection('form1_submissions').orderBy('createdAt', 'desc').get();
-      snapshot.forEach(doc => {
-        const entry = doc.data();
-        entriesDiv.innerHTML += `
-          <div class="entry">
-            <strong>${entry.name}</strong><br/>
-            ${entry.email}, ${entry.phone}<br/>
-            ${entry.address}, ${entry.city}<br/>
-            ${entry.details}
-          </div>
-        `;
-      });
+      entriesDiv.innerHTML = '<div style="text-align: center; color: rgba(255,255,255,0.5);">Loading...</div>';
+      
+      try {
+        const snapshot = await db.collection('form1_submissions').orderBy('createdAt', 'desc').limit(10).get();
+        entriesDiv.innerHTML = '';
+        
+        if (snapshot.empty) {
+          entriesDiv.innerHTML = '<div style="text-align: center; color: rgba(255,255,255,0.5);">No submissions yet</div>';
+          return;
+        }
+
+        snapshot.forEach(doc => {
+          const entry = doc.data();
+          const entryDiv = document.createElement('div');
+          entryDiv.className = 'entry';
+          entryDiv.innerHTML = `
+            <div class="entry-name">${entry.name || 'N/A'}</div>
+            <div class="entry-contact">${entry.email || 'N/A'} • ${entry.phone || 'N/A'}</div>
+            <div class="entry-address">${entry.address || 'N/A'}${entry.city ? ', ' + entry.city : ''}</div>
+            <div class="entry-details">${entry.details || 'No additional details'}</div>
+          `;
+          entriesDiv.appendChild(entryDiv);
+        });
+      } catch (err) {
+        console.error("Error loading entries: ", err);
+        entriesDiv.innerHTML = '<div style="text-align: center; color: rgba(255,100,100,0.8);">Error loading entries</div>';
+      }
     }
 
-    // ✅ Step 5: Load on Start
+    // Load entries on start
     loadEntries();
-  </script>
 
+    // Add some interactive effects
+    document.querySelectorAll('.input-field').forEach(input => {
+      input.addEventListener('focus', function() {
+        this.parentElement.style.transform = 'scale(1.02)';
+      });
+      
+      input.addEventListener('blur', function() {
+        this.parentElement.style.transform = 'scale(1)';
+      });
+    });
+  </script>
 </body>
 </html>
